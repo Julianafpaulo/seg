@@ -1,13 +1,15 @@
 "use strict";
 
-module.exports.listStudents = (connection) => {
+const cypher = require('./aes');
+
+module.exports.listStudents = (connection, masterKey) => {
 	return new Promise((resolve, reject) => {
 		connection.query('SELECT * FROM students', (error, result, fields) => {
 			if(error){
 				reject(error);
 				return;
 			}
-			resolve(result);
+			resolve(cypher.aesEncryptTest( JSON.stringify(result)));
 		});
 	});
 };

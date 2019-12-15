@@ -1,24 +1,27 @@
 const express = require('express');
 const mysql = require('mysql');
+const crypto_1 = require("crypto");
 
 const app = express();
 app.use(express.json());
 const connection = mysql.createConnection({
-	host: 'localhost',
+	host: '192.168.100.54',
 	user: 'application',
 	password: 'application',
 	database: 'seginfo'
 });
 
+const unencryptedMasterKey = crypto_1.randomBytes(32);
 
 const student = require('./service/student');
+
 
 app.get('/', function(req, res) {
 	res.send("Hello World!");
 });
 
 app.get('/students', function(req, res) {
-	student.listStudents(connection)
+	student.listStudents(connection, unencryptedMasterKey)
 		.then((result) => {
 			res.send(result);
 		})

@@ -1,11 +1,13 @@
 const express = require('express');
 const mysql = require('mysql');
 const crypto_1 = require("crypto");
+const cors = require("cors");
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 const connection = mysql.createConnection({
-	host: '192.168.100.54',
+	host: '192.168.0.31',
 	user: 'application',
 	password: 'application',
 	database: 'seginfo'
@@ -15,9 +17,15 @@ const unencryptedMasterKey = crypto_1.randomBytes(32);
 
 const student = require('./service/student');
 
-
 app.get('/', function(req, res) {
-	res.send("Hello World!");
+	rsa.rsaTest()
+		.then((result) => {
+			res.send(result);
+		})
+		.catch((err) => {
+			console.error(err);
+			return res.status(500).send();
+		});
 });
 
 app.get('/students', function(req, res) {

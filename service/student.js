@@ -1,6 +1,6 @@
 "use strict";
 
-const cypher = require('./aes');
+const cypher = require('./cryptography');
 
 module.exports.listStudents = (connection, masterKey) => {
 	return new Promise((resolve, reject) => {
@@ -9,7 +9,7 @@ module.exports.listStudents = (connection, masterKey) => {
 				reject(error);
 				return;
 			}
-			resolve(cypher.aesEncryptTest( JSON.stringify(result)));
+			resolve(cypher.aesEncryptTest(JSON.stringify(result)));
 		});
 	});
 };

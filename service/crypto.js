@@ -16,25 +16,22 @@ module.exports.generateKeys = () => {
 }
 
 module.exports.decryptWithPrivate = (privateKey, data, iv, encrypted) => {
-    return new Promise((resolve, reject) => {   
-        const decrypted = crypt.decrypt(privateKey, encrypted);
-        console.log("AES D "+decrypted.message);
-        resolve(decrypted.message);
-    })
+    const decrypted = crypt.decrypt(privateKey, encrypted);
+    console.log("AES D "+decrypted.message);
+    return  decrypted.message;
 }
 
 module.exports.encryptWithAes = (data,aesKey) => {
     return new Promise((resolve, reject) => {
         console.log("DATA "+JSON.stringify(data));
-        let aesDecTrans = CryptoJS.AES.encrypt(JSON.stringify(data), aesKey, {iv: "6162636465666768696a6b6c6d6e6f7",mode: CryptoJS.mode.CBC,
-            padding: CryptoJS.pad.Pkcs7});
+        let aesDecTrans = CryptoJS.AES.encrypt(JSON.stringify(data),
+            aesKey);
         console.log("DATAE "+aesDecTrans);
-        let aesEncTrans = CryptoJS.AES.decrypt(aesDecTrans, aesKey, {iv: "6162636465666768696a6b6c6d6e6f7",mode: CryptoJS.mode.CBC,
-            padding: CryptoJS.pad.Pkcs7});
+        let aesEncTrans = CryptoJS.AES.decrypt(aesDecTrans, aesKey);
         console.log("DATAEeee "+aesEncTrans);
         console.log("DATADEDE "+aesEncTrans.toString(CryptoJS.enc.Utf8));
 
-        resolve(aesDecTrans.toString());
+        resolve(aesDecTrans);
     }).catch((err) => {
         console.error(err);
     });

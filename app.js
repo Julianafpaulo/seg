@@ -37,9 +37,7 @@ app.get('/students', function(req, res) {
 	const rsaEncryptedAesKey = req.header('rsaEncryptedAesKey')
 	const iv = req.header('iv')
 	const encrypted = req.header('encrypted')
-	crypto.decryptWithPrivate(rsaPrivateKey, rsaEncryptedAesKey, iv, encrypted).then((result) => {
-		aesKey = result;
-	})
+	aesKey = crypto.decryptWithPrivate(rsaPrivateKey, rsaEncryptedAesKey, iv, encrypted);
 
 	student.listStudents(connection, aesKey)
 		.then((result) => {
@@ -49,7 +47,7 @@ app.get('/students', function(req, res) {
 			}).catch((err) => {
 				console.error(err);
 				return res.status(500).send();
-			});;
+			});
 		})
 		.catch((err) => {
 			console.error(err);

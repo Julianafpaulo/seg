@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 const connection = mysql.createConnection({
-	host: '192.168.0.31',
+	host: 'localhost',
 	user: 'application',
 	password: 'application',
 	database: 'seginfo'
@@ -19,6 +19,7 @@ const crypto = require('./service/crypto');
 let rsaPublicKey = null;
 let rsaPrivateKey = null;
 let aesKey = null;
+let data1 = null;
 let iv = null;
 
 app.get('/getPublicKey', function(req, res) {
@@ -39,10 +40,16 @@ app.get('/students', function(req, res) {
 	crypto.decryptWithPrivate(rsaPrivateKey, rsaEncryptedAesKey, iv, encrypted).then((result) => {
 		aesKey = result;
 	})
-	console.log("AESKEY" + aesKey);
+
 	student.listStudents(connection, aesKey)
 		.then((result) => {
-			res.send(result);
+			console.log("AESKEY" + aesKey);
+			crypto.encryptWithAes(result, aesKey,iv).then((result1) => {
+				res.send(result1.toString());
+			}).catch((err) => {
+				console.error(err);
+				return res.status(500).send();
+			});;
 		})
 		.catch((err) => {
 			console.error(err);

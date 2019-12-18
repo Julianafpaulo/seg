@@ -1,6 +1,5 @@
 const express = require('express');
 const mysql = require('mysql');
-const crypto_1 = require("crypto");
 const cors = require("cors");
 
 const app = express();
@@ -13,23 +12,35 @@ const connection = mysql.createConnection({
 	database: 'seginfo'
 });
 
-const unencryptedMasterKey = crypto_1.randomBytes(32);
 
 const student = require('./service/student');
+const crypto = require('./service/crypto');
 
-app.get('/', function(req, res) {
-	rsa.rsaTest()
-		.then((result) => {
-			res.send(result);
-		})
-		.catch((err) => {
-			console.error(err);
-			return res.status(500).send();
-		});
+let rsaPublicKey = null;
+let rsaPrivateKey = null;
+let aesKey = null;
+let iv = null;
+
+app.get('/getPublicKey', function(req, res) {
+	crypto.generateKeys().then((result) => {
+		rsaPublicKey = result.publicKey;
+		rsaPrivateKey = result.privateKey;
+		res.send(rsaPublicKey);
+	}).catch((err) => {
+		console.log(err);
+		return res.result(500).send();
+	})
 });
 
 app.get('/students', function(req, res) {
-	student.listStudents(connection, unencryptedMasterKey)
+	const rsaEncryptedAesKey = req.header('rsaEncryptedAesKey')
+	const iv = req.header('iv')
+	const encrypted = req.header('encrypted')
+	crypto.decryptWithPrivate(rsaPrivateKey, rsaEncryptedAesKey, iv, encrypted).then((result) => {
+		aesKey = result;
+	})
+	console.log("AESKEY" + aesKey);
+	student.listStudents(connection, aesKey)
 		.then((result) => {
 			res.send(result);
 		})
@@ -80,6 +91,15 @@ app.listen(8080, function() {
 		}
 		
 		console.log('connected as id ' + connection.threadId);
+	});
+
+
+	crypto.generateKeys().then((keys) => {
+		rsaPrivateKey = keys.privateKey;
+		rsaPublicKey = keys.publicKey;
+	})
+	.catch((err) => {
+		console.log(err);
 	});
 	console.log("Example app listening");
 });
